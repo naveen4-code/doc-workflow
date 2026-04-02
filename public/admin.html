@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="layout">
+  <div class="sidebar">
+    <h2>Admin</h2>
+    <a>Sectors</a>
+    <a>Types</a>
+    <a>Workflow</a>
+  </div>
+  <div class="main">
+    <div class="topbar">
+      <h3>Admin Panel</h3>
+    </div>
+    <div class="card">
+      <h3>Add Sector</h3>
+      <input id="sectorName">
+      <button onclick="addSector()">Add</button>
+    </div>
+    <div class="card">
+      <h3>Add Document Type</h3>
+      <input id="typeName">
+      <button onclick="addType()">Add</button>
+    </div>
+    <div class="card">
+      <h3>Create Workflow Step</h3>
+      <input id="templateId" placeholder="Template ID">
+      <input id="stepOrder" placeholder="Step Order">
+      <input id="reviewerId" placeholder="Reviewer ID">
+      <button onclick="addStep()">Add Step</button>
+    </div>
+  </div>
+</div>
+<script src="js/admin.js"></script>
+</body>
+</html>
