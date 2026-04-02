@@ -1,6 +1,7 @@
 async function signup() {
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
+  const role = document.getElementById("role").value;
 
   const { data, error } = await supabaseClient.auth.signUp({
     email,
@@ -8,20 +9,18 @@ async function signup() {
   });
 
   if (error) {
-    alert("Signup error: " + error.message);
+    alert(error.message);
     return;
   }
 
-  // Insert into users table with default role
   await supabaseClient.from("users").insert({
     id: data.user.id,
     email: email,
-    role: "user"
+    role: role
   });
 
-  alert("Signup successful! Now login.");
+  alert("Signup successful!");
 }
-
 async function login() {
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
@@ -58,4 +57,8 @@ async function login() {
   } else {
     window.location.href = "user.html";
   }
+}
+async function logout() {
+  await supabaseClient.auth.signOut();
+  window.location.href = "index.html";
 }

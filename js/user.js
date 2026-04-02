@@ -36,5 +36,20 @@ async function loadDocs() {
 
   document.getElementById("docs").innerHTML = html;
 }
+async function loadUserInfo() {
+  const { data } = await supabaseClient.auth.getUser();
 
+  document.getElementById("userEmail").innerText = data.user.email;
+}
+async function protectPage() {
+  const { data } = await supabaseClient.auth.getUser();
+
+  if (!data.user) {
+    window.location.href = "index.html";
+  }
+}
+
+protectPage();
+
+loadUserInfo();
 loadDocs();
