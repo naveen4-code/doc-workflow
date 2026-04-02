@@ -1,14 +1,32 @@
 async function login() {
   const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
 
-  const { data, error } = await supabaseClient.auth.signInWithOtp({
-    email: email
+  const { data, error } = await supabaseClient.auth.signInWithPassword({
+    email,
+    password
   });
 
-  alert("Check your email for login link");
+  if (error) {
+    alert("Login failed: " + error.message);
+  } else {
+    alert("Logged in successfully!");
+    window.location.href = "user.html";
+  }
 }
 
-async function getUser() {
-  const { data } = await supabaseClient.auth.getUser();
-  return data.user;
+async function signup() {
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+
+  const { data, error } = await supabaseClient.auth.signUp({
+    email,
+    password
+  });
+
+  if (error) {
+    alert("Sign-up failed: " + error.message);
+  } else {
+    alert("Sign-up successful! You can now login.");
+  }
 }
