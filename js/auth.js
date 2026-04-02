@@ -1,20 +1,3 @@
-async function login() {
-  const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
-
-  const { data, error } = await supabaseClient.auth.signInWithPassword({
-    email,
-    password
-  });
-
-  if (error) {
-    alert("Login failed: " + error.message);
-  } else {
-    alert("Logged in successfully!");
-    window.location.href = "user.html";
-  }
-}
-
 async function signup() {
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
@@ -25,8 +8,54 @@ async function signup() {
   });
 
   if (error) {
-    alert("Sign-up failed: " + error.message);
+    alert("Signup error: " + error.message);
+    return;
+  }
+
+  // Insert into users table with default role
+  await supabaseClient.from("users").insert({
+    id: data.user.id,
+    email: email,
+    role: "user"
+  });
+
+  alert("Signup successful! Now login.");
+}
+
+async function login() {
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+
+  const { data, error } = await supabaseClient.auth.signInWithPassword({
+    email,
+    password
+  });
+
+  if (error) {
+    alert("Login error: " + error.message);
+    return;
+  }
+
+  const userId = data.user.id;
+
+  // Fetch role
+  const { data: userData, error: roleError } = await supabaseClient
+    .from("users")
+    .select("role")
+    .eq("id", userId)
+    .single();
+
+  if (roleError || !userData) {
+    alert("Role fetch error");
+    return;
+  }
+
+  // Redirect
+  if (userData.role === "admin") {
+    window.location.href = "admin.html";
+  } else if (userData.role === "reviewer") {
+    window.location.href = "reviewer.html";
   } else {
-    alert("Sign-up successful! You can now login.");
+    window.location.href = "user.html";
   }
 }
