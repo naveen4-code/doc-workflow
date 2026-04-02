@@ -1,99 +1,60 @@
-async function loadDocs() {
-  const { data: userData } = await supabaseClient.auth.getUser();
-  const email = userData.user.email;
+async function loadPending() {
+  const user = (await supabaseClient.auth.getUser()).data.user;
 
-  const { data } = await supabaseClient
-    .from("workflow_instance")
-    .select(`
-      id,
-      current_step,
-      document:document_id (id, title)
-    `);
+  const { data: docs } = await supabaseClient
+    .from("document")
+    .select("*")
+    .eq("status", "PENDING");
 
   let html = "";
 
-  for (let item of data) {
-    // Get step info
+  for (let doc of docs) {
     const { data: step } = await supabaseClient
       .from("workflow_step")
       .select("*")
-      .eq("step_order", item.current_step)
+      .eq("template_id", doc.template_id)
+      .eq("step_order", doc.current_step)
       .single();
 
-    if (step && step.reviewer_email === email) {
+    if (step.reviewer_id === user.id) {
       html += `
         <div>
-          ${item.document.title}
-          <button onclick="approve(${item.document.id}, ${item.current_step})">Approve</button>
+          ${doc.title}
+          <button onclick="approve(${doc.id})">Approve</button>
         </div>
       `;
     }
   }
 
-  document.getElementById("list").innerHTML = html;
+  list.innerHTML = html;
 }
 
-loadDocs();
-async function approve(docId, step) {
-  const { data: userData } = await supabaseClient.auth.getUser();
-  const email = userData.user.email;
-
-  // Log approval
-  await supabaseClient.from("approval_log").insert({
-    document_id: docId,
-    step: step,
-    reviewer_email: email,
-    action: "APPROVED"
-  });
-
-  // Get next step
-  const { data: nextStep } = await supabaseClient
-    .from("workflow_step")
+async function approve(id) {
+  const { data: doc } = await supabaseClient
+    .from("document")
     .select("*")
-    .eq("step_order", step + 1)
+    .eq("id", id)
     .single();
 
-  if (nextStep) {
-    // Move to next step
-    await supabaseClient
-      .from("workflow_instance")
-      .update({ current_step: step + 1 })
-      .eq("document_id", docId);
+  const next = doc.current_step + 1;
+
+  const { data: steps } = await supabaseClient
+    .from("workflow_step")
+    .select("*")
+    .eq("template_id", doc.template_id)
+    .eq("step_order", next);
+
+  if (steps.length === 0) {
+    await supabaseClient.from("document")
+      .update({ status: "APPROVED" })
+      .eq("id", id);
   } else {
-    // Final approval
-    await supabaseClient
-      .from("workflow_instance")
-      .update({ status: "APPROVED" })
-      .eq("document_id", docId);
-
-    await supabaseClient
-      .from("document")
-      .update({ status: "APPROVED" })
-      .eq("id", docId);
+    await supabaseClient.from("document")
+      .update({ current_step: next })
+      .eq("id", id);
   }
 
-  loadDocs();
-}
-async function reject(id) {
-  await supabaseClient
-    .from("document")
-    .update({ status: "REJECTED" })
-    .eq("id", id);
-
-  await supabaseClient.from("approval_log").insert({
-    document_id: id,
-    action: "REJECTED"
-  });
-
-  loadDocs();
-}
-async function protectPage() {
-  const { data } = await supabaseClient.auth.getUser();
-
-  if (!data.user) {
-    window.location.href = "index.html";
-  }
+  loadPending();
 }
 
-protectPage();
-loadDocs();
+loadPending();

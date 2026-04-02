@@ -1,29 +1,32 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Admin</title>
-  <link rel="stylesheet" href="css/style.css">
-</head>
-<body>
-<div class="navbar">
-  <h2>Doc Workflow</h2>
-  <div>
-    <span id="userEmail"></span>
-    <button onclick="logout()">Logout</button>
+<div class="layout">
+
+  <div class="sidebar">
+    <h2>Admin</h2>
+    <a href="#">Sectors</a>
+    <a href="#">Doc Types</a>
+  </div>
+
+  <div class="main">
+
+    <div class="topbar">
+      <h3>Admin Panel</h3>
+    </div>
+
+    <div class="card">
+      <h3>Add Sector</h3>
+      <input id="sectorName">
+      <button onclick="addSector()">Add</button>
+    </div>
+
+    <div class="card">
+      <h3>Add Document Type</h3>
+      <input id="typeName">
+      <button onclick="addType()">Add</button>
+    </div>
+
   </div>
 </div>
 
-<h2>Admin Panel</h2>
-
-<input id="sector" placeholder="Sector Name">
-<button onclick="addSector()">Add Sector</button>
-
-<h3>All Sectors</h3>
-<div id="sectors"></div>
-
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-<script src="js/supabase.js"></script>
+<script src="js/config.js"></script>
 <script src="js/admin.js"></script>
-
-</body>
-</html>

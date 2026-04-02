@@ -1,23 +1,31 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Reviewer</title>
-  <link rel="stylesheet" href="css/style.css">
-</head>
-<body>
-<div class="navbar">
-  <h2>Doc Workflow</h2>
-  <div>
-    <span id="userEmail"></span>
-    <button onclick="logout()">Logout</button>
+<div class="layout">
+
+  <div class="sidebar">
+    <h2>Reviewer</h2>
+    <a href="#">Pending</a>
+  </div>
+
+  <div class="main">
+
+    <div class="topbar">
+      <h3>Pending Approvals</h3>
+    </div>
+
+    <div class="card">
+      <table>
+        <thead>
+          <tr>
+            <th>Document</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="list"></tbody>
+      </table>
+    </div>
+
   </div>
 </div>
-<h2>Pending Documents</h2>
-<div id="list"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-<script src="js/supabase.js"></script>
+<script src="js/config.js"></script>
 <script src="js/reviewer.js"></script>
-
-</body>
-</html>

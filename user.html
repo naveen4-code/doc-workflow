@@ -1,30 +1,46 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>User Dashboard</title>
-  <link rel="stylesheet" href="css/style.css">
-</head>
-<body>
+<div class="layout">
 
-<h2>Upload Document</h2>
-<div class="navbar">
-  <h2>Doc Workflow</h2>
-  <div>
-    <span id="userEmail"></span>
-    <button onclick="logout()">Logout</button>
+  <div class="sidebar">
+    <h2>DocFlow</h2>
+    <a href="#">Upload</a>
+    <a href="#">My Documents</a>
+  </div>
+
+  <div class="main">
+
+    <div class="topbar">
+      <h3>User Dashboard</h3>
+    </div>
+
+    <div class="card">
+      <h3>Upload Document</h3>
+
+      <input id="title" placeholder="Title">
+      <input type="file" id="file">
+
+      <select id="sector"></select>
+      <select id="type"></select>
+
+      <button onclick="upload()">Upload</button>
+    </div>
+
+    <div class="card">
+      <h3>Your Documents</h3>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Title</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="docs"></tbody>
+      </table>
+    </div>
+
   </div>
 </div>
-<input type="file" id="file">
-<input id="title" placeholder="Title">
-<button onclick="upload()">Upload</button>
-
-<h3>Your Documents</h3>
-<div id="docs"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-<script src="js/supabase.js"></script>
-<script src="js/auth.js"></script>
+<script src="js/config.js"></script>
 <script src="js/user.js"></script>
-
-</body>
-</html>

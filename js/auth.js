@@ -1,64 +1,35 @@
 async function signup() {
-  const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
-  const role = document.getElementById("role").value;
-
+  const email = emailInput.value;
+  const password = passwordInput.value;
   const { data, error } = await supabaseClient.auth.signUp({
     email,
     password
   });
-
-  if (error) {
-    alert(error.message);
-    return;
-  }
+  if (error) return alert(error.message);
 
   await supabaseClient.from("users").insert({
     id: data.user.id,
-    email: email,
-    role: role
+    email,
+    role: "user"
   });
-
-  alert("Signup successful!");
+  alert("Signup success");
 }
 async function login() {
-  const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
+  const email = emailInput.value;
+  const password = passwordInput.value;
 
   const { data, error } = await supabaseClient.auth.signInWithPassword({
     email,
     password
   });
+  if (error) return alert(error.message);
 
-  if (error) {
-    alert("Login error: " + error.message);
-    return;
-  }
-
-  const userId = data.user.id;
-
-  // Fetch role
-  const { data: userData, error: roleError } = await supabaseClient
+  const { data: user } = await supabaseClient
     .from("users")
-    .select("role")
-    .eq("id", userId)
+    .select("*")
+    .eq("id", data.user.id)
     .single();
-
-  if (roleError || !userData) {
-    alert("Role fetch error");
-    return;
-  }
-
-  // Redirect
-  if (userData.role === "admin") {
-    window.location.href = "admin.html";
-  } else if (userData.role === "reviewer") {
-    window.location.href = "reviewer.html";
-  } else {
-    window.location.href = "user.html";
-  }
-}
-async function logout() {
-  await supabaseClient.auth.signOut();
-  window.location.href = "index.html";
+  if (user.role === "admin") location.href = "admin.html";
+  else if (user.role === "reviewer") location.href = "reviewer.html";
+  else location.href = "user.html";
 }

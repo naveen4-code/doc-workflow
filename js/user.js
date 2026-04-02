@@ -1,69 +1,47 @@
-async function upload() {
-  const user = await supabaseClient.auth.getUser();
-  const file = document.getElementById("file").files[0];
-  const title = document.getElementById("title").value;
+async function loadDropdowns() {
+  const { data: sectors } = await supabaseClient.from("sector").select("*");
+  const { data: types } = await supabaseClient.from("document_type").select("*");
 
-  const { data: fileData } = await supabaseClient.storage
+  sector.innerHTML = sectors.map(s => `<option value="${s.id}">${s.name}</option>`).join("");
+  type.innerHTML = types.map(t => `<option value="${t.id}">${t.name}</option>`).join("");
+}
+
+async function upload() {
+  const user = (await supabaseClient.auth.getUser()).data.user;
+  const file = fileInput.files[0];
+
+  const { data } = await supabaseClient.storage
     .from("documents")
     .upload(`docs/${Date.now()}-${file.name}`, file);
 
-  const fileUrl = `${SUPABASE_URL}/storage/v1/object/public/documents/${fileData.path}`;
+  const url = `${SUPABASE_URL}/storage/v1/object/public/documents/${data.path}`;
 
-  // Insert document
-  const { data: doc } = await supabaseClient
-    .from("document")
-    .insert({
-      title,
-      file_url: fileUrl,
-      user_id: user.data.user.id,
-      status: "PENDING"
-    })
-    .select()
-    .single();
-
-  // Assign workflow instance
-  await supabaseClient.from("workflow_instance").insert({
-    document_id: doc.id
+  await supabaseClient.from("document").insert({
+    title: title.value,
+    file_url: url,
+    user_id: user.id,
+    sector_id: sector.value,
+    type_id: type.value,
+    template_id: 1
   });
 
-  alert("Uploaded with workflow!");
+  loadDocs();
 }
+
 async function loadDocs() {
-  const user = await getUser();
+  const user = (await supabaseClient.auth.getUser()).data.user;
 
   const { data } = await supabaseClient
     .from("document")
     .select("*")
     .eq("user_id", user.id);
 
-  let html = "";
-  data.forEach(doc => {
-    html += `<p>${doc.title} - ${doc.status}</p>`;
-  });
-
-  document.getElementById("docs").innerHTML = html;
+  docs.innerHTML = data.map(d => `
+    <div>
+      ${d.title} - ${d.status}
+    </div>
+  `).join("");
 }
-async function loadUserInfo() {
-  const { data } = await supabaseClient.auth.getUser();
 
-  document.getElementById("userEmail").innerText = data.user.email;
-}
-async function protectPage() {
-  const { data } = await supabaseClient.auth.getUser();
-
-  if (!data.user) {
-    window.location.href = "index.html";
-  }
-}
-async function loadHistory(docId) {
-  const { data } = await supabaseClient
-    .from("approval_log")
-    .select("*")
-    .eq("document_id", docId);
-
-  console.log(data);
-}
-protectPage();
-
-loadUserInfo();
+loadDropdowns();
 loadDocs();
